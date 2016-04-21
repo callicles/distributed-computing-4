@@ -1,0 +1,6 @@
+[package]
+name = "distributed-computing-4"
+version = "0.1.0"
+authors = ["Nicolas Joseph <nicolas@nicolasjoseph.com>"]
+
+[dependencies]
