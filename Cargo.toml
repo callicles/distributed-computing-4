@@ -1,5 +1,5 @@
 [package]
-name = "distributed-computing-4"
+name = "convolution"
 version = "0.1.0"
 authors = ["Nicolas Joseph <nicolas@nicolasjoseph.com>"]
 
