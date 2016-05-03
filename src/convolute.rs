@@ -4,7 +4,7 @@ pub struct Coordinate(pub isize, pub isize);
 // In the stencil and the image, the first coordinate is x, the second is y.
 // This is computing the convolution between the stencil and the extracted matrix from the
 // image
-pub fn compute_pixel(stencil: Vec<Vec<f32>>, coordinate: Coordinate, image_ref: &Vec<Vec<(f32, f32, f32)>>) -> (f32, f32, f32) {
+pub fn compute_pixel(stencil: &Vec<Vec<f32>>, coordinate: Coordinate, image_ref: &Vec<Vec<(f32, f32, f32)>>) -> (f32, f32, f32) {
     let stencil_size = (stencil.len(), stencil[0].len());
 
     let extracted_matrix = extract_matrix(image_ref, coordinate, stencil_size);
