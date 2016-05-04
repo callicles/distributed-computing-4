@@ -54,22 +54,72 @@ fn main() {
 
     let mut handles = Vec::new();
 
-    for i in 0..num_cpus {
-        let stencil_ref = shared_stencil.clone();
-        let img_ref = shared_img.clone();
-        println!("{:?}", i);
-        
-        
-        let handle = thread::spawn(move || {
-            unsafe {
-                let result = compute_pixel(&stencil_ref, Coordinate(i as isize,i as isize), &img_ref.clone());
-                
-                output_image[i as usize][i as usize]= (result.0, result.1, result.2);
-                println!("{:?}", result);
-            }
-        });
-        handles.push(handle);
+    let x_range: Vec<usize> = (0..x).collect();
+    let y_range: Vec<usize> = (0..y).collect();
+
+    let mut xs = Vec::new();
+    let mut ys = Vec::new();
+
+    if num_cpus % 2 == 0 {
+        xs = x_range.chunks(x/(num_cpus/2)).collect();
+        ys = y_range.chunks(x/(num_cpus/2)).collect();
+    } else {
+        xs = x_range.chunks(x/(num_cpus/2 + 1)).collect();
+        ys = y_range.chunks(x/(num_cpus/2 + 1)).collect();
     }
+
+    println!("{:?}", xs.clone());
+    println!("{:?}", ys.clone());
+
+    let mut is = Vec::new();
+    let mut js = Vec::new();
+
+    for i in xs.clone() {
+        let mut tmp = Vec::new();
+        for n in i {
+            tmp.push(n.clone())
+        } 
+        is.push(tmp.clone())
+    }
+
+    for j in ys.clone() {
+        let mut tmp = Vec::new();
+        for n in j {
+            tmp.push(n.clone())
+        }
+        js.push(tmp.clone())
+    }
+
+    for i in is.clone() {
+        for j in js.clone() {
+            let arc_i = Arc::new(i.clone());
+            let i_ref = arc_i.clone();
+            
+            let arc_j = Arc::new(j.clone());
+            let j_ref = arc_j.clone();
+
+            let stencil_ref = shared_stencil.clone();
+            let img_ref = shared_img.clone();
+
+            let handle = thread::spawn(move || {
+
+                for a in &i_ref.clone()[..] {
+                    for b in &j_ref.clone()[..] {
+                        
+                         unsafe {
+                            let result = compute_pixel(&stencil_ref, Coordinate(*a as isize,*b as isize), &img_ref.clone());
+                            
+                            output_image[*a as usize][*b as usize]= (result.0, result.1, result.2);
+                            
+                        }
+                    }
+                }
+            });
+
+            handles.push(handle);
+        }        
+    }
+    
 
     for h in handles {
         h.join();
@@ -79,6 +129,4 @@ fn main() {
         println!("{:?}", output_image);    
     }
     
-
-    // println!("Pixel value computed: {}", result[0].0);
 }
